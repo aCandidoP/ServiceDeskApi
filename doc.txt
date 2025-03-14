@@ -1,0 +1,17 @@
+/app/models
+Aqui você define as classes que representam suas tabelas no banco de dados usando SQLAlchemy. Exemplo: Usuario, Chamado, Localidade, Servico.
+
+/app/routes
+Responsável por definir as rotas da sua API. Cada rota será associada a um controlador para lidar com a lógica da requisição. Exemplo: POST /login, GET /chamados.
+
+/app/services
+Contém a lógica de negócios, ou seja, as regras e validações para o processamento dos dados. Exemplo: quando um usuário cria um chamado, você valida se o título é único ou se o chamado pode ser respondido.
+
+/app/controllers
+Responsável por coordenar as requisições e respostas. Os controladores recebem as requisições da rota, chamam os serviços e retornam a resposta para o cliente.
+
+/app/utils
+Funções auxiliares, como a configuração do JWT, funções de autenticação, etc.
+
+/app/config
+Arquivo de configuração do Flask, banco de dados, JWT, entre outras configurações da API.

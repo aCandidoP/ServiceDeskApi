@@ -1,5 +1,5 @@
 # app/configs/__init__.py
-from .dbconfig import DBConfig, db  # Importa as configurações do banco de dados
+from app.config.dbconfig import DBConfig, db  # Importa as configurações do banco de dados
 
 def init_app(app):
     """Configura o banco de dados e inicializa o SQLAlchemy no Flask."""

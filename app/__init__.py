@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
-from app.config.dbconfig import DBConfig
+from app.config.dbconfig import DBConfig, db
 
 migrate = Migrate()
 jwt = JWTManager()
@@ -13,11 +13,7 @@ def create_app(config_class=DBConfig):
     # Inicializa as extensões Flask
     db.init_app(app)  # Passa a aplicação para a instância db
     migrate.init_app(app, db)
-    jwt.init_app(app)
-
-    # Roteamento de exemplo
-    from app.routes import auth, ticket
-    app.register_blueprint(auth.bp)
-    app.register_blueprint(ticket.bp)
+    
+    from app.models import chamado, usuario, organizacao
 
     return app

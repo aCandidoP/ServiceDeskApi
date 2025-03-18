@@ -1,6 +1,5 @@
 from app import db
 from sqlalchemy import Integer, ForeignKey
-from sqlalchemy.orm import relationship
 import datetime
 
 class Chamado(db.Model):
@@ -11,7 +10,7 @@ class Chamado(db.Model):
     categoria = db.Column(db.String(15), nullable=False)
     data_criacao = db.Column(db.DateTime, default=lambda: datetime.now())
     usuario_id = db.Column(Integer, ForeignKey('usuarios.id'), nullable=False)
-    usuario = relationship('Usuarios', back_populates='chamados')
+    usuario = db.relationship('Usuario', back_populates='chamados')
     
 
     

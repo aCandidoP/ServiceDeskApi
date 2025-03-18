@@ -14,6 +14,6 @@ def create_app(config_class=DBConfig):
     db.init_app(app)  # Passa a aplicação para a instância db
     migrate.init_app(app, db)
     
-    from app.models import chamado, usuario, organizacao
+    from app.models import chamado, usuario, organizacao, servico, categoria
 
     return app

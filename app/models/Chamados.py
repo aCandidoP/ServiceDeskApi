@@ -1,6 +1,7 @@
 from app import db
 from sqlalchemy import Integer, ForeignKey
 import datetime
+from app.models import Usuario
 
 class Chamado(db.Model):
     __tablename__ = 'chamados'

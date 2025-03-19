@@ -1,4 +1,5 @@
 from app import db
+from app.models import Servicos
 
 class Categoria(db.Model):
     __tablename__ = 'categorias'

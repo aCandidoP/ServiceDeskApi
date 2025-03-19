@@ -9,6 +9,9 @@ class Usuario(db.Model):
     email = db.Column(db.String(100), unique=True, nullable=False)
     senha = db.Column(db.String(255), nullable=False)
     perfil = db.Column(db.String(50), nullable=False)
+    
+    chamados = db.relationship('Chamado', backref='usuario_rel', lazy=True)
+
 
     def __repr__(self):
         return f'<Usuario {self.nome}>'

@@ -1,7 +1,9 @@
 from flask import Blueprint
 
-# Criação do Blueprint para usuários
 usuario_bp = Blueprint('usuario', __name__, url_prefix='/usuarios')
+chamado_bp = Blueprint('chamado', __name__, url_prefix='/chamados')
+
 
 # Importa as rotas de usuário
-from app.routes.usuario_routes import *  # Importa todas as rotas definidas em usuario_routes.py
+from app.routes.usuario_routes import *
+from app.routes.chamado_routes import *

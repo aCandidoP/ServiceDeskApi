@@ -4,8 +4,6 @@ from app.config.dbconfig import db
 from werkzeug.security import generate_password_hash
 from app.routes import usuario_bp
 
-usuario_bp = Blueprint('usuario', __name__, url_prefix='/usuarios')
-
 # Rota para listar usuários
 @usuario_bp.route("/", methods=["GET"])
 def listar_usuarios():

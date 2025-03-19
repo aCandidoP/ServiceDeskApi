@@ -18,10 +18,12 @@ def create_app(config_class=DBConfig):
     db.init_app(app)  # Passa a aplicação para a instância db
     migrate.init_app(app, db)
     
-    from app.routes import usuario_bp
+    from app.routes import usuario_bp, chamado_bp
     app.register_blueprint(usuario_bp)
+    app.register_blueprint(chamado_bp)
     
-    from app.models import Servico, Chamado, Categoria, Organizacao
+    
+    from app.models import Servico, Chamado, Categoria, Organizacao, Usuario
     
     
     return app

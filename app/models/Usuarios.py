@@ -8,9 +8,8 @@ class Usuario(db.Model):
     nome = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
     senha = db.Column(db.String(255), nullable=False)
-    perfil = db.Column(db.String(50), nullable=False)
-    
-    chamados = db.relationship('Chamado', backref='usuario_rel', lazy=True)
+    perfil = db.relationship('Perfil', back_populates='usuario')
+    chamados = db.relationship('Chamado', back_populates='usuario', lazy=True)
 
 
     def __repr__(self):

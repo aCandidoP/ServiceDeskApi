@@ -2,3 +2,4 @@ venv/
 doc
 migrations/
 __pycache__
+config/

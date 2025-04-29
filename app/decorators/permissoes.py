@@ -6,7 +6,7 @@ def somente_admin(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
         identidade = get_jwt_identity() 
-        if identidade.get("perfil") != "admin":
+        if identidade.get("perfil") != "Administrador":
             return jsonify({"erro": "Acesso negado. Apenas administradores."}), 403
         return f(*args, **kwargs)
     return wrapper

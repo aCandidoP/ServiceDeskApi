@@ -1,10 +1,10 @@
 from flask import Blueprint, jsonify, request
 from app.models import Usuario
 from app.config.dbconfig import db
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import generate_password_hash
 from app.routes import usuario_bp
 import re
-from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token
+from flask_jwt_extended import jwt_required
 from datetime import timedelta
 
 def email_valido(email):
@@ -39,18 +39,3 @@ def criar_usuario():
     
     return jsonify({"mensagem": "Usuário criado com sucesso!"}), 201
 
-@usuario_bp.route("/login", methods=["POST"])
-def login():
-    dados = request.get_json()
-
-    if not dados or not "email" in dados or not "senha" in dados:
-        return jsonify({"erro": "Email e senha são obrigatórios!"}), 400
-
-    usuario = Usuario.query.filter_by(email=dados["email"]).first()
-
-    if not usuario or not check_password_hash(usuario.senha, dados["senha"]):
-        return jsonify({"erro": "Email ou senha incorretos!"}), 401
-
-    access_token = create_access_token(identity=usuario.id, expires_delta=timedelta(hours=1))
-
-    return jsonify({"token": access_token, "mensagem": "Login realizado com sucesso!"})

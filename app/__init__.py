@@ -5,6 +5,7 @@ from app.config.dbconfig import DBConfig, db
 from app.models import Categoria, Chamado, Organizacao, Servico, Usuario
 from dotenv import load_dotenv
 import os
+from flask_cors import CORS
 
 load_dotenv()
 
@@ -13,8 +14,12 @@ jwt = JWTManager()
 
 def create_app(config_class=DBConfig): 
     app = Flask(__name__)
+    CORS(app, resources={r"/auth/*": {"origins": "*"}}, methods=["GET", "POST", "OPTIONS"])
     
-    app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "chave_padrao")
+    jwt.init_app(app)
+    
+    app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
+    app.config["JWT_TOKEN_LOCATION"] = os.getenv("JWT_TOKEN_LOCATION", ["headers"])
     app.debug = True
     
     app.config.from_object(config_class)  # Carrega as configurações do banco de dados

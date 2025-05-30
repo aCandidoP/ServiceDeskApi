@@ -14,7 +14,7 @@ jwt = JWTManager()
 
 def create_app(config_class=DBConfig): 
     app = Flask(__name__)
-    CORS(app, resources={r"/auth/*": {"origins": "*"}}, methods=["GET", "POST", "OPTIONS"])
+    CORS(app, resources={r"*": {"origins": "*"}}, methods=["GET", "POST", "OPTIONS"])
     
     jwt.init_app(app)
     
@@ -24,8 +24,7 @@ def create_app(config_class=DBConfig):
     
     app.config.from_object(config_class)  # Carrega as configurações do banco de dados
 
-    # Inicializa as extensões Flask
-    db.init_app(app)  # Passa a aplicação para a instância db
+    db.init_app(app) 
     migrate.init_app(app, db)
     
     from app.routes import usuario_bp, chamado_bp, auth_bp

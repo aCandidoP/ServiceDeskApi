@@ -1,4 +1,4 @@
-from flask import request, jsonify
+from flask import request, jsonify, json
 from werkzeug.security import check_password_hash
 from app.models import Usuario
 from flask_jwt_extended import create_access_token
@@ -15,7 +15,13 @@ def auth():
 
     if not usuario or not check_password_hash(usuario.senha, dados["senha"]):
         return jsonify({"erro": "Credenciais inválidas"}), 401
-
-    access_token = create_access_token(identity={"id": usuario.id, "perfil": usuario.perfil.perfil})
+    identity_data_dict = {
+        "id": str(usuario.id),
+        "perfil_id": str(usuario.perfil.id)
+    }
+    
+    identity_as_json_string = json.dumps(identity_data_dict)
+    
+    access_token = create_access_token(identity=identity_as_json_string)
 
     return jsonify({"token": access_token, "mensagem": "Login realizado com sucesso!"})

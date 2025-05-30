@@ -4,14 +4,14 @@ from app.config.dbconfig import db
 from app.routes import chamado_bp
 
 
-@chamado_bp.route("/", methods=["GET"])
+@chamado_bp.route('', methods=["GET"])
 def listar_chamados():
     chamados = Chamado.query.all()
     chamados_json = [{"id": c.id, "titulo": c.titulo, "tipo": c.tipo , "categoria": c.categoria, "data_criacao": c.data_criacao,
                       "status": c.status, "usuario_id": c.usuario_id} for c in chamados]
     return jsonify(chamados_json)
 
-@chamado_bp.route("/", methods=["POST"])
+@chamado_bp.route('', methods=["POST"])
 def criar_usuario():
     dados = request.get_json()
     

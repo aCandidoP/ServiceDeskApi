@@ -12,6 +12,22 @@ class Usuario(db.Model):
     perfil = db.relationship('Perfil', back_populates='usuario')
     chamados = db.relationship('Chamado', back_populates='usuario', lazy=True)
 
-
+    def to_dict(self):
+        """
+        Converte o objeto Usuario para um dicionário,
+        facilitando a conversão para JSON.
+        """
+        return {
+            'id': self.id,
+            'nome': self.nome,
+            'email': self.email,
+            'perfil_id': self.perfil_id,
+            'perfil': self.perfil,
+            'chamados': self.chamados
+            
+        }
+    
     def __repr__(self):
         return f'<Usuario {self.nome}>'
+    
+    

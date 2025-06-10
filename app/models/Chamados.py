@@ -9,10 +9,29 @@ class Chamado(db.Model):
     titulo = db.Column(db.String(100), nullable=False)
     tipo = db.Column(db.String(20), nullable=False)
     categoria = db.Column(db.String(15), nullable=False)
+    descricao = db.Column(db.Text, nullable=False)
     status = db.Column(db.String(40))
     data_criacao = db.Column(db.DateTime, default=lambda: datetime.datetime.now())
     usuario_id = db.Column(Integer, ForeignKey('usuarios.id'), nullable=False)
     usuario = db.relationship('Usuario', back_populates='chamados')
+    
+    def to_dict(self):
+        """
+        Converte o objeto Usuario para um dicionário,
+        facilitando a conversão para JSON.
+        """
+        return {
+            'id': self.id,
+            'titulo': self.titulo,
+            'tipo': self.tipo,
+            'categoria': self.categoria,
+            'descricao': self.descricao,
+            'status': self.status,
+            'data_criacao': self.data_criacao,
+            'usuario_id': self.usuario_id,
+            'usuario': self.usuario
+            
+        }
     
 
     

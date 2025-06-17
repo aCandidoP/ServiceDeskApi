@@ -7,13 +7,15 @@ class Chamado(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     titulo = db.Column(db.String(100), nullable=False)
-    tipo = db.Column(db.String(20), nullable=False)
+    tipo_id = db.Column(Integer, ForeignKey('tipo.id'), nullable=False)
+    tipo = db.relationship('Tipo', back_populates='tipo')
     categoria = db.Column(db.String(15), nullable=False)
     descricao = db.Column(db.Text, nullable=False)
     status = db.Column(db.String(40))
     data_criacao = db.Column(db.DateTime, default=lambda: datetime.datetime.now())
     usuario_id = db.Column(Integer, ForeignKey('usuarios.id'), nullable=False)
     usuario = db.relationship('Usuario', back_populates='chamados')
+    
     
     def to_dict(self):
         """
@@ -32,9 +34,7 @@ class Chamado(db.Model):
             'usuario': self.usuario
             
         }
-    
-
-    
+        
 
     def __repr__(self):
         return f'<Usuario {self.nome}>'

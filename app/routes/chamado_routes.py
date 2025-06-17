@@ -8,6 +8,7 @@ import json
 from sqlalchemy import desc
 
 @jwt_required()
+@somente_admin
 @chamado_bp.route('', methods=["GET"])
 def listar_chamados():
     chamados = Chamado.query.all()

@@ -2,7 +2,7 @@ from flask import Flask
 from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
 from app.config.dbconfig import DBConfig, db
-from app.models import Categoria, Chamado, Organizacao, Servico, Usuario
+from app.models import Categoria, Chamado, Organizacao, Servico, Usuario, Tipo
 from dotenv import load_dotenv
 import os
 from flask_cors import CORS

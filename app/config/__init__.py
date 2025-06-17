@@ -1,1 +1,1 @@
-pass
+from app.config.dbconfig import DBConfig

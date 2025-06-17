@@ -13,7 +13,7 @@ from sqlalchemy import desc
 @somente_admin
 def listar_chamados():
     chamados = Chamado.query.all()
-    chamados_json = [{"id": c.id, "titulo": c.titulo, "tipo": c.tipo , "categoria": c.categoria, "data_criacao": c.data_criacao,
+    chamados_json = [{"id": c.id, "titulo": c.titulo, "tipo_id": c.tipo_id , "categoria": c.categoria, "data_criacao": c.data_criacao,
                       "status": c.status, "usuario_id": c.usuario_id} for c in chamados]
     return jsonify(chamados_json)
 

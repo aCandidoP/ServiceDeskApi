@@ -7,17 +7,19 @@ from app.decorators import somente_admin
 import json
 from sqlalchemy import desc
 
+
+@chamado_bp.route('', methods=["GET"])
 @jwt_required()
 @somente_admin
-@chamado_bp.route('', methods=["GET"])
 def listar_chamados():
     chamados = Chamado.query.all()
     chamados_json = [{"id": c.id, "titulo": c.titulo, "tipo": c.tipo , "categoria": c.categoria, "data_criacao": c.data_criacao,
                       "status": c.status, "usuario_id": c.usuario_id} for c in chamados]
     return jsonify(chamados_json)
 
-@jwt_required()
+
 @chamado_bp.route('', methods=["POST"])
+@jwt_required()
 def criar_chamado():
     dados = request.get_json()
     
@@ -40,8 +42,8 @@ def criar_chamado():
     return jsonify({"mensagem": "Chamado criado com sucesso!",
                     "chamado_id": novo_chamado.id}), 201
 
-@jwt_required()    
-@chamado_bp.route('/chamados', methods=['GET'])
+@chamado_bp.route('/paginados', methods=['GET'])
+@jwt_required()  
 def get_chamados_paginados():
     """
     Endpoint para listar usuários com suporte a paginação.

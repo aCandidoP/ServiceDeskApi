@@ -2,10 +2,10 @@ from flask import Flask
 from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
 from app.config.dbconfig import DBConfig, db
-from app.models import Categoria, Chamado, Organizacao, Servico, Usuario, Tipo
 from dotenv import load_dotenv
 import os
 from flask_cors import CORS
+import ast 
 
 load_dotenv()
 
@@ -14,26 +14,34 @@ jwt = JWTManager()
 
 def create_app(config_class=DBConfig): 
     app = Flask(__name__)
-    CORS(app, resources={r"*": {"origins": "*"}}, methods=["GET", "POST", "OPTIONS"])
+    CORS(app, resources={r"*": {"origins": "*"}}, methods=["GET", "POST", "OPTIONS"], supports_credentials=True)
     
-    jwt.init_app(app)
+    app.config.from_object(config_class) 
     
     app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
-    app.config["JWT_TOKEN_LOCATION"] = os.getenv("JWT_TOKEN_LOCATION", ["headers"])
-    app.debug = True
     
-    app.config.from_object(config_class)  # Carrega as configurações do banco de dados
+    jwt_token_location_env = os.getenv("JWT_TOKEN_LOCATION")
+    if jwt_token_location_env:
+        try:
+            app.config["JWT_TOKEN_LOCATION"] = ast.literal_eval(jwt_token_location_env)
+        except (ValueError, SyntaxError):
+            print(f"AVISO: JWT_TOKEN_LOCATION do ambiente é inválido ('{jwt_token_location_env}'). Usando padrão ['headers'].")
+            app.config["JWT_TOKEN_LOCATION"] = ["headers"]
+    else:
+        app.config["JWT_TOKEN_LOCATION"] = ["headers"]
 
+    app.debug = os.getenv("FLASK_DEBUG", "False").lower() in ("true", "1", "t")
+    
     db.init_app(app) 
     migrate.init_app(app, db)
+    jwt.init_app(app)
     
-    from app.routes import usuario_bp, chamado_bp, auth_bp
+    from app.routes.usuario_routes import usuario_bp
+    from app.routes.chamado_routes import chamado_bp
+    from app.routes.auth_routes import auth_bp
+    
     app.register_blueprint(usuario_bp)
     app.register_blueprint(chamado_bp)
     app.register_blueprint(auth_bp)
-    
-    
-    from app.models import Servico, Chamado, Categoria, Organizacao, Usuario, Tipo
-    
     
     return app

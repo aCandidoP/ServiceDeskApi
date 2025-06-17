@@ -21,11 +21,18 @@ def listar_chamados():
 def criar_chamado():
     dados = request.get_json()
     
-    if not all(k in dados for k in ("titulo", "tipo", "categoria", "usuario_id")):
-        return jsonify({"erro": "Campos obrigatórios: titulo, tipo, categoria, usuario_id"}), 400
+    if not all(k in dados for k in ("titulo", "tipo_id", "categoria", "usuario_id")):
+        return jsonify({"erro": "Campos obrigatórios: titulo, tipo_id, categoria, usuario_id"}), 400
     
     
-    novo_chamado = Chamado(titulo=dados["titulo"], tipo=dados["tipo"], categoria=dados["categoria"], status='Novo', usuario_id=dados["usuario_id"])
+    novo_chamado = Chamado(
+        titulo=dados["titulo"],
+        tipo_id=dados["tipo_id"],
+        categoria=dados["categoria"],
+        descricao=dados["descricao"], 
+        status='Novo',
+        usuario_id=dados["usuario_id"]
+    )
     
     db.session.add(novo_chamado)
     db.session.commit()

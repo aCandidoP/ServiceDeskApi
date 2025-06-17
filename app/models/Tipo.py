@@ -6,4 +6,5 @@ class Tipo(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     desc_tipo = db.Column(db.String(30))
+    chamado = db.relationship('Chamado', back_populates='tipo')
     

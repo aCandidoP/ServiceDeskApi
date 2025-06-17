@@ -23,8 +23,8 @@ def listar_usuarios():
 
 # Rota para criar um novo usuário
 @usuario_bp.route("/", methods=["POST"])
-@jwt_required()
-@somente_admin
+#@jwt_required()
+#@somente_admin
 def criar_usuario():
     dados = request.get_json()
     

@@ -33,7 +33,7 @@ def create_app(config_class=DBConfig):
     app.register_blueprint(auth_bp)
     
     
-    from app.models import Servico, Chamado, Categoria, Organizacao, Usuario
+    from app.models import Servico, Chamado, Categoria, Organizacao, Usuario, Tipo
     
     
     return app

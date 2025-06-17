@@ -8,7 +8,7 @@ class Chamado(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     titulo = db.Column(db.String(100), nullable=False)
     tipo_id = db.Column(Integer, ForeignKey('tipo.id'), nullable=False)
-    tipo = db.relationship('Tipo', back_populates='tipo')
+    tipo = db.relationship('Tipo', back_populates='chamado')
     categoria = db.Column(db.String(15), nullable=False)
     descricao = db.Column(db.Text, nullable=False)
     status = db.Column(db.String(40))
@@ -25,7 +25,7 @@ class Chamado(db.Model):
         return {
             'id': self.id,
             'titulo': self.titulo,
-            'tipo': self.tipo,
+            'tipo': self.tipo_id,
             'categoria': self.categoria,
             'descricao': self.descricao,
             'status': self.status,

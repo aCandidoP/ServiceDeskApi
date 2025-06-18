@@ -21,6 +21,15 @@ def listar_usuarios():
     usuarios_json = [{"id": u.id, "nome": u.nome, "email": u.email, "perfil_id": u.perfil_id} for u in usuarios]
     return jsonify(str(usuarios_json))
 
+# Rota para listar usuários por id
+@usuario_bp.route("/<int:user_id>", methods=["GET"])
+@jwt_required()
+@somente_admin
+def listar_usuario(user_id):
+    usuario = Usuario.query.get_or_404(user_id)
+    usuarios_json = [{"id": u.id, "nome": u.nome, "email": u.email, "perfil_id": u.perfil_id} for u in usuario]
+    return jsonify(str(usuarios_json))
+
 # Rota para criar um novo usuário
 @usuario_bp.route("/", methods=["POST"])
 @jwt_required()

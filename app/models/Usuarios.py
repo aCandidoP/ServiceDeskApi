@@ -13,19 +13,15 @@ class Usuario(db.Model):
     chamados = db.relationship('Chamado', back_populates='usuario', lazy=True)
 
     def to_dict(self):
-        """
-        Converte o objeto Usuario para um dicionário,
-        facilitando a conversão para JSON.
-        """
         return {
             'id': self.id,
             'nome': self.nome,
             'email': self.email,
             'perfil_id': self.perfil_id,
-            'perfil': self.perfil,
-            'chamados': self.chamados
-            
+            'perfil': self.perfil.to_dict() if self.perfil else None,
+            'chamados': [chamado.to_dict() for chamado in self.chamados] if self.chamados else []
         }
+
     
     def __repr__(self):
         return f'<Usuario {self.nome}>'

@@ -18,10 +18,6 @@ class Chamado(db.Model):
     
     
     def to_dict(self):
-        """
-        Converte o objeto Usuario para um dicionário,
-        facilitando a conversão para JSON.
-        """
         return {
             'id': self.id,
             'titulo': self.titulo,
@@ -29,12 +25,12 @@ class Chamado(db.Model):
             'categoria': self.categoria,
             'descricao': self.descricao,
             'status': self.status,
-            'data_criacao': self.data_criacao,
-            'usuario_id': self.usuario_id,
-            'usuario': self.usuario
-            
+            'data_criacao': self.data_criacao.isoformat() if self.data_criacao else None,
+            'usuario_id': self.usuario.id,
+            'usuario_nome': self.usuario.nome if self.usuario else None
         }
+
         
 
     def __repr__(self):
-        return f'<Usuario {self.nome}>'
+        return f'<Usuario {self.titulo}>'

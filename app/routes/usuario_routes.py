@@ -26,7 +26,7 @@ def listar_usuarios():
 @jwt_required()
 @somente_admin
 def listar_usuario(user_id):
-    usuario = Usuario.query.get_or_404(user_id)
+    usuario = Usuario.query.filter_by(id=user_id)
     usuarios_json = [{"id": u.id, "nome": u.nome, "email": u.email, "perfil_id": u.perfil_id} for u in usuario]
     return jsonify(str(usuarios_json))
 

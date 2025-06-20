@@ -1,7 +1,7 @@
 from flask_jwt_extended import get_jwt_identity
 from functools import wraps
 from flask import jsonify
-import json # << IMPORTAR JSON AQUI
+import json
 
 def somente_admin(f): # Novo nome para clareza
     @wraps(f)
@@ -17,15 +17,12 @@ def somente_admin(f): # Novo nome para clareza
             print(f"ERRO no Decorator: Falha ao decodificar a string JSON da identidade: '{identidade_str_json}'")
             return jsonify({"erro": "Formato da identidade (string JSON) inválido no token."}), 401
         
-        print(f"DEBUG no Decorator: Dicionário decodificado da identidade: {identidade_dict}")
 
         perfil_id = identidade_dict.get("perfil_id")
 
         if perfil_id is None:
             print(f"AVISO no Decorator: Chave 'perfil_id' não encontrada no dicionário da identidade. Conteúdo: {identidade_dict}")
             return jsonify({"erro": "Chave 'perfil_id' não encontrada nos dados da identidade."}), 403
-        
-        print(f"DEBUG no Decorator: 'perfil_id' encontrado: {perfil_id}, tipo: {type(perfil_id)}")
 
         if str(perfil_id) == '1': 
             return f(*args, **kwargs)

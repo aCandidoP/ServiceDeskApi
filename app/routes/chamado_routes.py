@@ -30,7 +30,7 @@ def criar_chamado():
     novo_chamado = Chamado(
         titulo=dados["titulo"],
         tipo_id=dados["tipo_id"],
-        categoria=dados["categoria"],
+        categoria=dados["categoria_id"],
         descricao=dados["descricao"], 
         status='Novo',
         usuario_id=dados["usuario_id"]

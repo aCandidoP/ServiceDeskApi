@@ -11,5 +11,5 @@ from app.decorators import somente_admin
 @somente_admin
 def listar_categorias():
     categorias = Categoria.query.all()
-    categoria_json = [{"id": c.id, "nome": c.nome, "servicos": c.servicos} for c in categorias]
-    return jsonify(categoria_json)
+    categorias_dict = [categoria.to_dict() for categoria in categorias]
+    return jsonify(categorias_dict)

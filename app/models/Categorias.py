@@ -9,5 +9,12 @@ class Categoria(db.Model):
     tipo = db.relationship('Tipo', back_populates='categorias')
     servicos = db.relationship('Servico', back_populates='categoria', lazy='dynamic')
     
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'nome': self.nome,
+            'tipo_id': self.tipo_id,
+        }
+    
     def __repr__(self):
         return f'<Categoria: {self.nome}>'

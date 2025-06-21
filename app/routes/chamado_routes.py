@@ -23,8 +23,8 @@ def listar_chamados():
 def criar_chamado():
     dados = request.get_json()
     
-    if not all(k in dados for k in ("titulo", "tipo_id", "categoria", "usuario_id")):
-        return jsonify({"erro": "Campos obrigatórios: titulo, tipo_id, categoria, usuario_id"}), 400
+    if not all(k in dados for k in ("titulo", "tipo_id", "categoria_id", "usuario_id")):
+        return jsonify({"erro": "Campos obrigatórios: titulo, tipo_id, categoria_id, usuario_id"}), 400
     
     
     novo_chamado = Chamado(

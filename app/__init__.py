@@ -39,6 +39,8 @@ def create_app(config_class=DBConfig):
     from app.routes.usuario_routes import usuario_bp
     from app.routes.chamado_routes import chamado_bp
     from app.routes.auth_routes import auth_bp
+    from app.routes.categoria_routes import categoria_bp
+    from app.routes.tipo_routes import tipo_bp
     
     app.register_blueprint(usuario_bp)
     app.register_blueprint(chamado_bp)

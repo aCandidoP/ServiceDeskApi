@@ -5,8 +5,9 @@ class Categoria(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(100), nullable=False)
-    
-    servicos = db.relationship('Servico', back_populates='categoria', lazy=True)
+    tipo_id = db.Column(db.Integer, db.ForeignKey('tipo.id'), nullable=False)
+    tipo = db.relationship('Tipo', back_populates='categorias')
+    servicos = db.relationship('Servico', back_populates='categoria', lazy='dynamic')
     
     def __repr__(self):
-        return f'Categoria: {self.nome}'
+        return f'<Categoria: {self.nome}>'

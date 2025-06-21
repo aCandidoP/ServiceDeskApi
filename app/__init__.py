@@ -45,5 +45,7 @@ def create_app(config_class=DBConfig):
     app.register_blueprint(usuario_bp)
     app.register_blueprint(chamado_bp)
     app.register_blueprint(auth_bp)
+    app.register_blueprint(tipo_bp)
+    app.register_blueprint(categoria_bp)
     
     return app

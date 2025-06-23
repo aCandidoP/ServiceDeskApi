@@ -5,9 +5,11 @@ chamado_bp = Blueprint('chamado', __name__, url_prefix='/chamados')
 auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 categoria_bp = Blueprint('categoria', __name__, url_prefix='/categorias')
 tipo_bp = Blueprint('tipo', __name__, url_prefix='/tipos')
+organizacao_bp = Blueprint('organizacao', __name__, url_prefix='/organizacoes')
 
 from app.routes.usuario_routes import *
 from app.routes.chamado_routes import *
 from app.routes.auth_routes import *
 from app.routes.categoria_routes import *
 from app.routes.tipo_routes import *
+from app.routes.organizacoes_routes import *

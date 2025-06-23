@@ -15,6 +15,7 @@ class Chamado(db.Model):
     data_criacao = db.Column(db.DateTime, default=lambda: datetime.datetime.now())
     usuario_id = db.Column(Integer, ForeignKey('usuarios.id'), nullable=False)
     usuario = db.relationship('Usuario', back_populates='chamados')
+    organizacao = db.relationship('Organizacoes', back_populates='chamados_organizacao')
     
     
     def to_dict(self):

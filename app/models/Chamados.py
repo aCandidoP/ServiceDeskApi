@@ -3,6 +3,7 @@ from sqlalchemy import Integer, ForeignKey
 import datetime
 
 
+
 class Chamado(db.Model):
     __tablename__ = 'chamados'
 
@@ -18,7 +19,7 @@ class Chamado(db.Model):
     usuario = db.relationship('Usuario', back_populates='chamados')
     organizacao_id = db.Column(Integer, ForeignKey('organizacoes.id'))
     organizacao = db.relationship('Organizacao', back_populates='chamados_organizacao')
-    acompanhamentos = db.relationship('Acompanhamentos', back_populates='chamados')
+    acompanhamentos = db.relationship('Acompanhamento', back_populates='chamados', order_by='Acompanhamento.data_criacao.asc()')
     
     
     def to_dict(self):
@@ -39,4 +40,4 @@ class Chamado(db.Model):
         
 
     def __repr__(self):
-        return f'<Usuario {self.titulo}>'
+        return f'<Chamado {self.titulo}>'

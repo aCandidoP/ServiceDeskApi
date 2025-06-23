@@ -31,6 +31,24 @@ def listar_chamado(id):
         "usuario_id": chamado.usuario_id
         }
     return(jsonify(chamado_json))
+
+
+@chamado_bp.route("/status/<string:status>", methods=["GET"])
+@jwt_required()
+def listar_chamado_status(status):
+    status_formatado = status.upper()
+    chamado = Chamado.query.filter_by(status=status_formatado).order_by(Chamado.id.desc()).all()
+    print(chamado)
+    chamado_json = [{
+        "id": c.id,
+        "titulo": c.titulo,
+        "tipo_id": c.tipo_id ,
+        "categoria": c.categoria,
+        "data_criacao": c.data_criacao,
+        "status": c.status,
+        "usuario_id": c.usuario_id
+        }for c in chamado]
+    return(jsonify(chamado_json))
     
 
 
@@ -48,7 +66,7 @@ def criar_chamado():
         tipo_id=dados["tipo_id"],
         categoria=dados["categoria_id"],
         descricao=dados["descricao"], 
-        status='Novo',
+        status='NOVO',
         usuario_id=dados["usuario_id"],
         organizacao_id=["organização_id"]
     )

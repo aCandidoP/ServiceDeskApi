@@ -1,5 +1,5 @@
 from app.config.dbconfig import db
-from sqlalchemy import Integer, String
+from sqlalchemy import Integer, ForeignKey
 
 class Usuario(db.Model):
     __tablename__ = 'usuarios'
@@ -11,6 +11,8 @@ class Usuario(db.Model):
     perfil_id = db.Column(db.Integer, db.ForeignKey('perfis.id'), nullable=False) 
     perfil = db.relationship('Perfil', back_populates='usuario')
     chamados = db.relationship('Chamado', back_populates='usuario', lazy=True)
+    organizacao_id = db.Column(Integer, ForeignKey('organizacoes.id'))
+    acompanhamentos = db.relationship('Acompanhamento', back_populates='usuario')
 
     def to_dict(self):
         return {

@@ -2,6 +2,7 @@ from app import db
 from sqlalchemy import Integer, ForeignKey
 import datetime
 
+
 class Chamado(db.Model):
     __tablename__ = 'chamados'
 
@@ -15,7 +16,9 @@ class Chamado(db.Model):
     data_criacao = db.Column(db.DateTime, default=lambda: datetime.datetime.now())
     usuario_id = db.Column(Integer, ForeignKey('usuarios.id'), nullable=False)
     usuario = db.relationship('Usuario', back_populates='chamados')
-    organizacao = db.relationship('Organizacoes', back_populates='chamados_organizacao')
+    organizacao_id = db.Column(Integer, ForeignKey('organizacoes.id'))
+    organizacao = db.relationship('Organizacao', back_populates='chamados_organizacao')
+    acompanhamentos = db.relationship('Acompanhamentos', back_populates='chamados')
     
     
     def to_dict(self):
@@ -28,7 +31,9 @@ class Chamado(db.Model):
             'status': self.status,
             'data_criacao': self.data_criacao.isoformat() if self.data_criacao else None,
             'usuario_id': self.usuario.id,
-            'usuario_nome': self.usuario.nome if self.usuario else None
+            'usuario_nome': self.usuario.nome if self.usuario else None,
+            'organizacao_id': self.organizacao_id if self.organizacao_id else None,
+            'organizacao_nome': self.organizacao.nome if self.organizacao.nome else None
         }
 
         

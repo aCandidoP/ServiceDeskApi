@@ -8,7 +8,7 @@ class Organizacao(db.Model):
     cidade = db.Column(db.String(25), nullable=False)
     estado = db.Column(db.String(2), nullable=False)
     segmento = db.Column(db.String(100), nullable=False)
-    chamados_organizacao = db.relationship('Chamados', back_populates='organizacao')
+    chamados_organizacao = db.relationship('Chamado', back_populates='organizacao')
     
     def to_dict(self):
         return {

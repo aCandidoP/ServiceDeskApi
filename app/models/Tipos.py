@@ -9,3 +9,12 @@ class Tipo(db.Model):
     # Relação com Chamado (verificar necessidade)
     chamado = db.relationship('Chamado', back_populates='tipo')
     
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'desc_tipo': self.desc_tipo,
+        }
+    
+    
+    def __repr__(self):
+        return f'<Tipo {self.desc_tipo}>'

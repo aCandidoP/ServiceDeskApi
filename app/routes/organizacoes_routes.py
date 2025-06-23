@@ -21,13 +21,15 @@ def listar_organizacoes():
         
     }for o in organizacoes]
     
+    return(jsonify(organizacoes_json))
+    
 @organizacao_bp.route('', methods=["POST"])
 @jwt_required()
 @somente_admin
 def cadastrar_organizacao():
     dados = request.get_json()
     
-    if not all(k in dados for k in ("nome", "cidade", "estado", "segmneto")):
+    if not all(k in dados for k in ("nome", "cidade", "estado", "segmento")):
         return jsonify({"erro": "Campos obrigatórios não preenchidos"}), 400
     
     nova_organizacao = Organizacao(nome=dados['nome'], cidade=dados['cidade'], estado=dados['estado'],

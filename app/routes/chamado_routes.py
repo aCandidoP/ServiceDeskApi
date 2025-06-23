@@ -17,6 +17,22 @@ def listar_chamados():
                       "status": c.status, "usuario_id": c.usuario_id} for c in chamados]
     return jsonify(chamados_json)
 
+@chamado_bp.route("/<int:id>", methods=["GET"])
+@jwt_required()
+def listar_chamado(id):
+    chamado = Chamado.query.get_or_404(id)
+    chamado_json = {
+        "id": chamado.id,
+        "titulo": chamado.titulo,
+        "tipo_id": chamado.tipo_id ,
+        "categoria": chamado.categoria,
+        "data_criacao": chamado.data_criacao,
+        "status": chamado.status,
+        "usuario_id": chamado.usuario_id
+        }
+    return(jsonify(chamado_json))
+    
+
 
 @chamado_bp.route('', methods=["POST"])
 @jwt_required()

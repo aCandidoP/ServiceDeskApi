@@ -7,6 +7,7 @@ class Categoria(db.Model):
     nome = db.Column(db.String(100), nullable=False)
     tipo_id = db.Column(db.Integer, db.ForeignKey('tipo.id'), nullable=False)
     tipo = db.relationship('Tipo', back_populates='categorias')
+    chamados = db.relationship('Chamado', back_populates='categoria')
     
     def to_dict(self):
         return {

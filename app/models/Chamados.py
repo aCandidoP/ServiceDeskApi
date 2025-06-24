@@ -2,8 +2,6 @@ from app import db
 from sqlalchemy import Integer, ForeignKey
 import datetime
 
-
-
 class Chamado(db.Model):
     __tablename__ = 'chamados'
 
@@ -11,7 +9,8 @@ class Chamado(db.Model):
     titulo = db.Column(db.String(100), nullable=False)
     tipo_id = db.Column(Integer, ForeignKey('tipo.id'), nullable=False)
     tipo = db.relationship('Tipo', back_populates='chamado')
-    categoria = db.Column(db.String(15), nullable=False)
+    categoria_id = db.Column(Integer, ForeignKey('categorias.id'), nullable=False)
+    categoria = db.relationship('Categoria', back_populates='chamados')
     descricao = db.Column(db.Text, nullable=False)
     status = db.Column(db.String(40))
     data_criacao = db.Column(db.DateTime, default=lambda: datetime.datetime.now())
@@ -26,15 +25,23 @@ class Chamado(db.Model):
         return {
             'id': self.id,
             'titulo': self.titulo,
-            'tipo': self.tipo_id,
-            'categoria': self.categoria,
+            'tipo_id': self.categoria.tipo_id,
+            'desc_tipo': self.categoria.tipo.desc_tipo,
+            'categoria_id': self.categoria_id,
+            'categoria_nome': self.categoria.nome,
             'descricao': self.descricao,
             'status': self.status,
             'data_criacao': self.data_criacao.isoformat() if self.data_criacao else None,
             'usuario_id': self.usuario.id,
             'usuario_nome': self.usuario.nome if self.usuario else None,
             'organizacao_id': self.organizacao_id if self.organizacao_id else None,
-            'organizacao_nome': self.organizacao.nome if self.organizacao.nome else None
+            'organizacao_nome': self.organizacao.nome if self.organizacao.nome else None,
+            'acompanhamentos': {
+                'id': self.acompanhamentos.id,
+                'comentario': self.acompanhamentos.comentario,
+                'usuario': self.acompanhamentos.usuario.nome,
+                'data_criacao': self.acompanhamentos.data_criacao
+                }
         }
 
         

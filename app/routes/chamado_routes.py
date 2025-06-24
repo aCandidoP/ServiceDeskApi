@@ -39,7 +39,7 @@ def listar_chamados():
 
 @chamado_bp.route("/<int:id>", methods=["GET"])
 @jwt_required()
-def listar_chamado(id):
+def listar_chamado_byId(id):
     chamado = Chamado.query.get_or_404(id)
     chamado_json = {
         "id": chamado.id,
@@ -60,7 +60,7 @@ def listar_chamado(id):
 
 @chamado_bp.route("/status/<string:status>", methods=["GET"])
 @jwt_required()
-def listar_chamado_status(status):
+def listar_chamado_byStatus(status):
     status_formatado = status.upper()
     chamados = Chamado.query.filter_by(status=status_formatado).order_by(Chamado.id.desc()).all()
     chamado_json = [{
@@ -166,9 +166,9 @@ def get_chamados_paginados_byStatus(status):
     """
     Endpoint para listar usuários com suporte a paginação.
     Exemplos de como chamar via frontend:
-    /chamados?page=1&per_page=10  (retorna os 10 primeiros usuários da página 1)
-    /chamados?page=2&per_page=5   (retorna os 5 usuários da página 2)
-    /chamados                     (usa os valores padrão: página 1, 10 por página)
+    /chamados/paginados/<status>/?page=1&per_page=10  (retorna os 10 primeiros usuários da página 1)
+    /chamados/paginados/<status>/?page=2&per_page=5   (retorna os 5 usuários da página 2)
+    /chamados/paginados/<status>                     (usa os valores padrão: página 1, 10 por página)
     """
     
     # 1. Obter os parâmetros da URL, com valores padrão para o caso de não serem fornecidos.
@@ -190,10 +190,10 @@ def get_chamados_paginados_byStatus(status):
     # 3. Criar a query condicionalmente
     query_base = None
     if str(perfil_id) == '1': # Verifica se é Admin
-        query_base = Chamado.query.order_by(desc(Chamado.id))
+        query_base = Chamado.query.order_by(desc(Chamado.id)).filter_by(status=status)
     else:
         # Usuário comum vê apenas seus próprios chamados.
-        query_base = Chamado.query.filter_by(usuario_id=usuario_id).order_by(desc(Chamado.id))
+        query_base = Chamado.query.filter_by(usuario_id=usuario_id).order_by(desc(Chamado.id)).filter_by(status=status)
 
     # 4. Aplicar a paginação na query base
     pagination_object = query_base.paginate(page=page, per_page=per_page, error_out=False)

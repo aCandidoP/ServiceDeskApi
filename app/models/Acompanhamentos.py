@@ -14,7 +14,7 @@ class Acompanhamento(db.Model):
     chamado_id = db.Column(db.Integer, db.ForeignKey('chamados.id'), nullable=False)
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
     usuario = db.relationship('Usuario', back_populates='acompanhamentos')
-    chamados = db.relationship('Chamado', back_populates='acompanhamentos')
+    chamado = db.relationship('Chamado', back_populates='acompanhamentos')
 
     def to_dict(self):
         """Converte o objeto para um dicionário serializável para JSON."""

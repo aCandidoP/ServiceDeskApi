@@ -2,6 +2,8 @@ from app import db
 from sqlalchemy import Integer, ForeignKey
 import datetime
 
+
+
 class Chamado(db.Model):
     __tablename__ = 'chamados'
 
@@ -18,7 +20,14 @@ class Chamado(db.Model):
     usuario = db.relationship('Usuario', back_populates='chamados')
     organizacao_id = db.Column(Integer, ForeignKey('organizacoes.id'))
     organizacao = db.relationship('Organizacao', back_populates='chamados_organizacao')
-    acompanhamentos = db.relationship('Acompanhamento', back_populates='chamados', order_by='Acompanhamento.data_criacao.asc()')
+    acompanhamentos = db.relationship(
+        'Acompanhamento', 
+        back_populates='chamado', 
+        lazy='dynamic',
+        order_by='Acompanhamento.data_criacao.asc()'
+    )
+    
+    
     
     
     def to_dict(self):
@@ -36,12 +45,10 @@ class Chamado(db.Model):
             'usuario_nome': self.usuario.nome if self.usuario else None,
             'organizacao_id': self.organizacao_id if self.organizacao_id else None,
             'organizacao_nome': self.organizacao.nome if self.organizacao.nome else None,
-            'acompanhamentos': {
-                'id': self.acompanhamentos.id,
-                'comentario': self.acompanhamentos.comentario,
-                'usuario': self.acompanhamentos.usuario.nome,
-                'data_criacao': self.acompanhamentos.data_criacao
-                }
+            
+            'acompanhamentos': [
+                acompanhamento.to_dict() for acompanhamento in self.acompanhamentos
+            ]
         }
 
         

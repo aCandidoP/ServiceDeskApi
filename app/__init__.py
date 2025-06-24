@@ -42,6 +42,7 @@ def create_app(config_class=DBConfig):
     from app.routes.categoria_routes import categoria_bp
     from app.routes.tipo_routes import tipo_bp
     from app.routes.organizacoes_routes import organizacao_bp
+    from app.routes.acompanhamento_routes import acompanhamento_bp
     
     app.register_blueprint(usuario_bp)
     app.register_blueprint(chamado_bp)
@@ -49,5 +50,6 @@ def create_app(config_class=DBConfig):
     app.register_blueprint(tipo_bp)
     app.register_blueprint(categoria_bp)
     app.register_blueprint(organizacao_bp)
+    app.register_blueprint(acompanhamento_bp)
     
     return app

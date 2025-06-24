@@ -5,7 +5,7 @@ from app.routes import chamado_bp
 from flask_jwt_extended  import jwt_required, get_jwt_identity
 from app.decorators import somente_admin
 import json
-from sqlalchemy import desc
+from sqlalchemy import desc, func
 
 
 @chamado_bp.route('', methods=["GET"])
@@ -216,3 +216,26 @@ def get_chamados_paginados_byStatus(status):
     }
     
     return jsonify(resultado_final)
+
+
+@chamado_bp.route('/contagem_por_status', methods=['GET'])
+@jwt_required()
+def get_contagem_por_status():
+    """
+    Endpoint que retorna a contagem de chamados para cada status.
+    Exemplo de retorno:
+    {
+        "NOVO": 15,
+        "EM ANDAMENTO": 8,
+        "PENDENTE": 3,
+        "SOLUCIONADO": 42
+    }
+    """
+    try:
+        contagens = db.session.query(Chamado.status,func.count(Chamado.id).label('quantidade')).group_by(Chamado.status).all()
+        resultado_formatado = {status: quantidade for status, quantidade in contagens}
+        return jsonify(resultado_formatado)
+
+    except Exception as e:
+        print(f"Erro ao gerar estatísticas de chamados: {e}")
+        return jsonify({"erro": "Não foi possível processar as estatísticas"}), 500

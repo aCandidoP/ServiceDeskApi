@@ -22,7 +22,8 @@ class Usuario(db.Model):
             'email': self.email,
             'perfil_id': self.perfil_id,
             'perfil': self.perfil.to_dict() if self.perfil else None,
-            'chamados': [chamado.to_dict() for chamado in self.chamados] if self.chamados else []
+            'chamados': [chamado.to_dict() for chamado in self.chamados] if self.chamados else [],
+            'organizacao': self.organizacao.nome
         }
 
     

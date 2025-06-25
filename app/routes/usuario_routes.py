@@ -17,7 +17,7 @@ def email_valido(email):
 def listar_usuarios():
     usuarios = Usuario.query.all()
     usuarios_list = [{"id": u.id, "nome": u.nome, "email": u.email, "perfil_id": u.perfil_id,
-                      "organizacao": u.organizacao.nome} for u in usuarios]
+                      "organizacao_id": u.organizacao_id} for u in usuarios]
     return jsonify({"usuarios": usuarios_list})
 
 # Rota para listar usuários por id
@@ -31,7 +31,7 @@ def listar_usuario(user_id):
         "nome": usuario.nome,
         "email": usuario.email,
         "perfil_id": usuario.perfil_id,
-        "organizacao": usuario.organizacao.nome
+        "organizacao_id": usuario.organizacao_id
     }
     return(jsonify(usuario_json))
     

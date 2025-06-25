@@ -16,7 +16,8 @@ def email_valido(email):
 @usuario_bp.route("/", methods=["GET"])
 def listar_usuarios():
     usuarios = Usuario.query.all()
-    usuarios_list = [{"id": u.id, "nome": u.nome, "email": u.email, "perfil_id": u.perfil_id} for u in usuarios]
+    usuarios_list = [{"id": u.id, "nome": u.nome, "email": u.email, "perfil_id": u.perfil_id,
+                      "organizacao": u.organizacao.nome} for u in usuarios]
     return jsonify({"usuarios": usuarios_list})
 
 # Rota para listar usuários por id
@@ -29,7 +30,8 @@ def listar_usuario(user_id):
         "id": usuario.id,
         "nome": usuario.nome,
         "email": usuario.email,
-        "perfil_id": usuario.perfil_id
+        "perfil_id": usuario.perfil_id,
+        "organizacao": usuario.organizacao.nome
     }
     return(jsonify(usuario_json))
     
@@ -41,14 +43,15 @@ def listar_usuario(user_id):
 def criar_usuario():
     dados = request.get_json()
     
-    if not all(k in dados for k in ("nome", "email", "senha", "perfil_id")):
-        return jsonify({"erro": "Campos obrigatórios: nome, email, senha, perfil_id"}), 400
+    if not all(k in dados for k in ("nome", "email", "senha", "perfil_id", "organizacao_id")):
+        return jsonify({"erro": "Campos obrigatórios não preenchidos"}), 400
     
     if not email_valido(dados["email"]):
         return jsonify({"erro": "E-mail inválido"}), 400
     
     senha_hash = generate_password_hash(dados["senha"])
-    novo_usuario = Usuario(nome=dados["nome"], email=dados["email"], senha=senha_hash, perfil_id=dados["perfil_id"])
+    novo_usuario = Usuario(nome=dados["nome"], email=dados["email"], senha=senha_hash, perfil_id=dados["perfil_id"],
+                           organizacao_id=dados["organizacao_id"])
     
     db.session.add(novo_usuario)
     db.session.commit()

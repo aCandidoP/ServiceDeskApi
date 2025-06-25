@@ -9,6 +9,7 @@ class Organizacao(db.Model):
     estado = db.Column(db.String(2), nullable=False)
     segmento = db.Column(db.String(100), nullable=False)
     chamados_organizacao = db.relationship('Chamado', back_populates='organizacao')
+    usuarios = db.relationship('Usuario', back_populates='organizacao')
     
     def to_dict(self):
         return {

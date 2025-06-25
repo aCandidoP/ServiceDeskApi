@@ -9,9 +9,10 @@ class Usuario(db.Model):
     email = db.Column(db.String(100), unique=True, nullable=False)
     senha = db.Column(db.String(255), nullable=False)
     perfil_id = db.Column(db.Integer, db.ForeignKey('perfis.id'), nullable=False) 
-    perfil = db.relationship('Perfil', back_populates='usuario')
+    perfil = db.relationship('Perfil', back_populates='usuarios')
     chamados = db.relationship('Chamado', back_populates='usuario', lazy=True)
     organizacao_id = db.Column(Integer, ForeignKey('organizacoes.id'))
+    organizacao = db.relationship('Organizacao', back_populates='usuarios')
     acompanhamentos = db.relationship('Acompanhamento', back_populates='usuario')
 
     def to_dict(self):

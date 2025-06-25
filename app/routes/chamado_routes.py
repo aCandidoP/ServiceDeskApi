@@ -33,8 +33,10 @@ def listar_chamados():
         "data_criacao": c.data_criacao,
         "status": c.status,
         "usuario_id": c.usuario_id,
-        "acompanhamentos": c.acompanhamentos}
+        "acompanhamentos": [acompanhamento for acompanhamento in c.acompanhamentos],
+        "organizacao_id": c.organizacao_id,}
                      for c in chamados]
+        
     return jsonify(chamados_json)
 
 @chamado_bp.route("/<int:id>", methods=["GET"])
@@ -50,7 +52,8 @@ def listar_chamado_byId(id):
         "data_criacao": chamado.data_criacao,
         "status": chamado.status,
         "usuario_id": chamado.usuario_id,
-        "acompanhamentos": chamado.acompanhamentos
+        "organizacao_id": chamado.organizacao_id,
+        "acompanhamentos": [acompanhamento for acompanhamento in chamado.acompanhamentos],
         }
         
                      
@@ -72,7 +75,8 @@ def listar_chamado_byStatus(status):
         "data_criacao": chamado.data_criacao,
         "status": chamado.status,
         "usuario_id": chamado.usuario_id,
-        "acompanhamentos": chamado.acompanhamentos
+        "organizacao_id": chamado.organizacao_id,
+        "acompanhamentos": [acompanhamento for acompanhamento in chamado.acompanhamentos],
         }for chamado in chamados]
     return(jsonify(chamado_json))
     
@@ -83,7 +87,7 @@ def listar_chamado_byStatus(status):
 def criar_chamado():
     dados = request.get_json()
     
-    if not all(k in dados for k in ("titulo", "tipo_id", "categoria_id", "usuario_id", "organizacao_id")):
+    if not all(k in dados for k in ("titulo", "tipo_id", "categoria_id","descricao", "usuario_id", "organizacao_id")):
         return jsonify({"erro": "Campos obrigatórios: titulo, tipo_id, categoria_id, usuario_id, organizacao_id"}), 400
     
     

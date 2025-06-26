@@ -15,7 +15,7 @@ jwt = JWTManager()
 
 def create_app(config_class=DBConfig): 
     app = Flask(__name__)
-    CORS(app, resources={r"*": {"origins": "*"}}, methods=["GET", "POST", "OPTIONS"], supports_credentials=True)
+    CORS(app, resources={r"*": {"origins": "*"}}, methods=["GET", "POST", "OPTIONS", "PUT"], supports_credentials=True)
     
     app.config.from_object(config_class) 
     

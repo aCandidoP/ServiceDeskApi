@@ -1,6 +1,7 @@
 from app import db
 from sqlalchemy import Integer, ForeignKey
 import datetime
+from time import strftime
 
 
 
@@ -40,7 +41,8 @@ class Chamado(db.Model):
             'categoria_nome': self.categoria.nome,
             'descricao': self.descricao,
             'status': self.status,
-            'data_criacao': self.data_criacao.isoformat() if self.data_criacao else None,
+            'data_criacao': self.data_criacao.strftime("%d/%m/%Y %H:%M") if self.data_criacao else None,
+
             'usuario_id': self.usuario.id,
             'usuario_nome': self.usuario.nome if self.usuario else None,
             'organizacao_id': self.organizacao_id if self.organizacao_id else None,

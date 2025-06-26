@@ -1,95 +1,93 @@
+# app/routes/chamado_routes.py
+
 from flask import jsonify, request
-from app.models import Chamado
+from app.models import Chamado, Usuario # Importar Usuario para a rota de criação
 from app.config.dbconfig import db
 from app.routes import chamado_bp
-from flask_jwt_extended  import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.decorators import somente_admin
 import json
 from sqlalchemy import desc, func
 
-
+# Rota para listar todos os chamados (não paginada)
 @chamado_bp.route('', methods=["GET"])
 @jwt_required()
-@somente_admin
 def listar_chamados():
     try:
         identidade_str_json = get_jwt_identity()
         identidade_dict = json.loads(identidade_str_json)
-        usuario_id = identidade_dict.get("id")
+        usuario_id_token = identidade_dict.get("id")
         perfil_id = identidade_dict.get("perfil_id")
     except (TypeError, json.JSONDecodeError):
         return jsonify({"erro": "Formato da identidade no token é inválido."}), 401
-    if str(perfil_id) == '1': # Verifica se é Admin
-        chamados = Chamado.query.order_by(desc(Chamado.id))
-    else:
-        # Usuário comum vê apenas seus próprios chamados.
-        chamados = Chamado.query.filter_by(usuario_id=usuario_id).order_by(desc(Chamado.id))
-    chamados_json = [{
-        "id": c.id,
-        "titulo": c.titulo,
-        "tipo": c.tipo.desc_tipo,
-        "descricao": c.descricao,
-        "categoria": c.categoria.nome,
-        "data_criacao": c.data_criacao,
-        "status": c.status,
-        "usuario_id": c.usuario_id,
-        "acompanhamentos": [acompanhamento for acompanhamento in c.acompanhamentos],
-        "organizacao_id": c.organizacao_id,}
-                     for c in chamados]
-        
-    return jsonify(chamados_json)
 
+    if str(perfil_id) == '1': # Verifica se é Admin
+        chamados_query = Chamado.query.order_by(desc(Chamado.id))
+    else:
+        # ALTERAÇÃO: Filtra pelo novo campo 'requerente_id'
+        chamados_query = Chamado.query.filter_by(requerente_id=usuario_id_token).order_by(desc(Chamado.id))
+    
+    chamados = chamados_query.all()
+    
+    # Usa o método .to_dict() para garantir uma serialização consistente e correta
+    chamados_json = [c.to_dict() for c in chamados]
+    
+    return jsonify({"chamados": chamados_json})
+
+# Rota para listar um chamado específico por ID
 @chamado_bp.route("/<int:id>", methods=["GET"])
 @jwt_required()
 def listar_chamado_byId(id):
     chamado = Chamado.query.get_or_404(id)
-    chamado_json = {
-        "id": chamado.id,
-        "titulo": chamado.titulo,
-        "tipo": chamado.tipo.desc_tipo,
-        "descricao": chamado.descricao,
-        "categoria": chamado.categoria.nome,
-        "data_criacao": chamado.data_criacao,
-        "status": chamado.status,
-        "usuario_id": chamado.usuario_id,
-        "organizacao_id": chamado.organizacao_id,
-        "acompanhamentos": [acompanhamento for acompanhamento in chamado.acompanhamentos],
-        }
-        
-                     
-        
-    return(jsonify(chamado_json))
+    
+    # Simplificado para usar o método .to_dict() do modelo, que já tem toda a lógica
+    return jsonify(chamado.to_dict())
 
 
+# Rota para listar chamados por status
 @chamado_bp.route("/status/<string:status>", methods=["GET"])
 @jwt_required()
 def listar_chamado_byStatus(status):
+    try:
+        identidade_str_json = get_jwt_identity()
+        identidade_dict = json.loads(identidade_str_json)
+        usuario_id_token = identidade_dict.get("id")
+        perfil_id = identidade_dict.get("perfil_id")
+    except (TypeError, json.JSONDecodeError):
+        return jsonify({"erro": "Formato da identidade no token é inválido."}), 401
+        
     status_formatado = status.upper()
-    chamados = Chamado.query.filter_by(status=status_formatado).order_by(Chamado.id.desc()).all()
-    chamado_json = [{
-        "id": chamado.id,
-        "titulo": chamado.titulo,
-        "tipo": chamado.tipo.desc_tipo,
-        "descricao": chamado.descricao,
-        "categoria": chamado.categoria.nome,
-        "data_criacao": chamado.data_criacao,
-        "status": chamado.status,
-        "usuario_id": chamado.usuario_id,
-        "organizacao_id": chamado.organizacao_id,
-        "acompanhamentos": [acompanhamento for acompanhamento in chamado.acompanhamentos],
-        }for chamado in chamados]
-    return(jsonify(chamado_json))
+
+    if str(perfil_id) == '1': # Se for Admin, busca em todos os chamados
+        chamados = Chamado.query.filter_by(status=status_formatado).order_by(Chamado.id.desc()).all()
+    else: # Se não, busca apenas nos chamados do próprio usuário
+        chamados = Chamado.query.filter_by(status=status_formatado, requerente_id=usuario_id_token).order_by(Chamado.id.desc()).all()
     
+    chamados_json = [chamado.to_dict() for chamado in chamados]
+    
+    return jsonify({"chamados": chamados_json})
 
-
+# Rota para criar um novo chamado
 @chamado_bp.route('', methods=["POST"])
 @jwt_required()
 def criar_chamado():
     dados = request.get_json()
     
-    if not all(k in dados for k in ("titulo", "tipo_id", "categoria_id","descricao", "usuario_id", "organizacao_id")):
-        return jsonify({"erro": "Campos obrigatórios: titulo, tipo_id, categoria_id, usuario_id, organizacao_id"}), 400
+    # VALIDAÇÃO: Garante que todos os campos que o usuário deve enviar estão presentes
+    if not all(k in dados for k in ("titulo", "tipo_id", "categoria_id", "descricao")):
+        return jsonify({"erro": "Campos obrigatórios: titulo, tipo_id, categoria_id, descricao"}), 400
     
+    # Pega o criador e a organização do token, não do JSON, para segurança
+    try:
+        identidade_str_json = get_jwt_identity()
+        identidade_dict = json.loads(identidade_str_json)
+        usuario_id_logado = identidade_dict.get("id")
+        if not usuario_id_logado:
+            return jsonify({"erro": "ID do usuário não encontrado no token."}), 401
+    except (TypeError, json.JSONDecodeError):
+        return jsonify({"erro": "Formato da identidade no token é inválido."}), 401
+
+    usuario_logado = Usuario.query.get_or_404(usuario_id_logado)
     
     novo_chamado = Chamado(
         titulo=dados["titulo"],
@@ -97,59 +95,47 @@ def criar_chamado():
         categoria_id=dados["categoria_id"],
         descricao=dados["descricao"], 
         status='NOVO',
-        usuario_id=dados["usuario_id"],
-        organizacao_id=dados["organizacao_id"]
+        # ALTERAÇÃO: 'requerente_id' é definido pelo usuário do token
+        requerente_id=usuario_logado.id,
+        organizacao_id=usuario_logado.organizacao_id,
+        # 'responsavel_id' é opcional e pode ser passado no JSON
+        responsavel_id=dados.get("responsavel_id", None)
     )
     
     db.session.add(novo_chamado)
     db.session.commit()
     
-    return jsonify({"mensagem": "Chamado criado com sucesso!",
-                    "chamado_id": novo_chamado.id}), 201
+    return jsonify({
+        "mensagem": "Chamado criado com sucesso!",
+        "chamado": novo_chamado.to_dict()
+    }), 201
+
 
 @chamado_bp.route('/paginados', methods=['GET'])
-@jwt_required()  
+@jwt_required()
 def get_chamados_paginados():
-    """
-    Endpoint para listar usuários com suporte a paginação.
-    Exemplos de como chamar via frontend:
-    /chamados?page=1&per_page=10  (retorna os 10 primeiros usuários da página 1)
-    /chamados?page=2&per_page=5   (retorna os 5 usuários da página 2)
-    /chamados                     (usa os valores padrão: página 1, 10 por página)
-    """
-    
-    # 1. Obter os parâmetros da URL, com valores padrão para o caso de não serem fornecidos.
-    # O 'type=int' garante que, se o valor for fornecido, ele será convertido para inteiro.
-    
     try:
         identidade_str_json = get_jwt_identity()
         identidade_dict = json.loads(identidade_str_json)
-        usuario_id = identidade_dict.get("id")
+        usuario_id_token = identidade_dict.get("id")
         perfil_id = identidade_dict.get("perfil_id")
     except (TypeError, json.JSONDecodeError):
         return jsonify({"erro": "Formato da identidade no token é inválido."}), 401
     
-    
-    # 2. Obter os parâmetros de paginação da URL
     page = request.args.get('page', 1, type=int)
     per_page = request.args.get('per_page', 10, type=int)
     
-    # 3. Criar a query condicionalmente
     query_base = None
-    if str(perfil_id) == '1': # Verifica se é Admin
+    if str(perfil_id) == '1':
         query_base = Chamado.query.order_by(desc(Chamado.id))
     else:
-        # Usuário comum vê apenas seus próprios chamados.
-        query_base = Chamado.query.filter_by(usuario_id=usuario_id).order_by(desc(Chamado.id))
+        query_base = Chamado.query.filter_by(requerente_id=usuario_id_token).order_by(desc(Chamado.id))
 
-    # 4. Aplicar a paginação na query base
     pagination_object = query_base.paginate(page=page, per_page=per_page, error_out=False)
     
-    # 5. Extrair e serializar os itens da página atual
     chamados_da_pagina = pagination_object.items
     chamados_serializados = [chamado.to_dict() for chamado in chamados_da_pagina]
     
-    # 6. Montar a resposta final com os metadados da paginação
     resultado_final = {
         'chamados': chamados_serializados,
         'pagination_metadata': {
@@ -164,49 +150,33 @@ def get_chamados_paginados():
     
     return jsonify(resultado_final)
 
+# Rota para listar chamados paginados por status
 @chamado_bp.route('/paginados/<string:status>', methods=['GET'])
-@jwt_required()  
+@jwt_required()
 def get_chamados_paginados_byStatus(status):
-    """
-    Endpoint para listar usuários com suporte a paginação.
-    Exemplos de como chamar via frontend:
-    /chamados/paginados/<status>/?page=1&per_page=10  (retorna os 10 primeiros usuários da página 1)
-    /chamados/paginados/<status>/?page=2&per_page=5   (retorna os 5 usuários da página 2)
-    /chamados/paginados/<status>                     (usa os valores padrão: página 1, 10 por página)
-    """
-    
-    # 1. Obter os parâmetros da URL, com valores padrão para o caso de não serem fornecidos.
-    # O 'type=int' garante que, se o valor for fornecido, ele será convertido para inteiro.
-    
     try:
         identidade_str_json = get_jwt_identity()
         identidade_dict = json.loads(identidade_str_json)
-        usuario_id = identidade_dict.get("id")
+        usuario_id_token = identidade_dict.get("id")
         perfil_id = identidade_dict.get("perfil_id")
     except (TypeError, json.JSONDecodeError):
         return jsonify({"erro": "Formato da identidade no token é inválido."}), 401
     
-    
-    # 2. Obter os parâmetros de paginação da URL
     page = request.args.get('page', 1, type=int)
     per_page = request.args.get('per_page', 10, type=int)
+    status_formatado = status.upper()
     
-    # 3. Criar a query condicionalmente
     query_base = None
-    if str(perfil_id) == '1': # Verifica se é Admin
-        query_base = Chamado.query.order_by(desc(Chamado.id)).filter_by(status=status)
+    if str(perfil_id) == '1':
+        query_base = Chamado.query.filter_by(status=status_formatado).order_by(desc(Chamado.id))
     else:
-        # Usuário comum vê apenas seus próprios chamados.
-        query_base = Chamado.query.filter_by(usuario_id=usuario_id).order_by(desc(Chamado.id)).filter_by(status=status)
+        query_base = Chamado.query.filter_by(requerente_id=usuario_id_token, status=status_formatado).order_by(desc(Chamado.id))
 
-    # 4. Aplicar a paginação na query base
     pagination_object = query_base.paginate(page=page, per_page=per_page, error_out=False)
     
-    # 5. Extrair e serializar os itens da página atual
     chamados_da_pagina = pagination_object.items
     chamados_serializados = [chamado.to_dict() for chamado in chamados_da_pagina]
     
-    # 6. Montar a resposta final com os metadados da paginação
     resultado_final = {
         'chamados': chamados_serializados,
         'pagination_metadata': {
@@ -220,24 +190,32 @@ def get_chamados_paginados_byStatus(status):
     }
     
     return jsonify(resultado_final)
-
 
 @chamado_bp.route('/contagem_por_status', methods=['GET'])
 @jwt_required()
 def get_contagem_por_status():
     """
-    Endpoint que retorna a contagem de chamados para cada status.
-    Exemplo de retorno:
-    {
-        "NOVO": 15,
-        "EM ANDAMENTO": 8,
-        "PENDENTE": 3,
-        "SOLUCIONADO": 42
-    }
+    Retorna a contagem de chamados por status.
+    - Admins veem a contagem total.
+    - Usuários comuns veem a contagem apenas de seus próprios chamados.
     """
     try:
-        contagens = db.session.query(Chamado.status,func.count(Chamado.id).label('quantidade')).group_by(Chamado.status).all()
+        identidade_str_json = get_jwt_identity()
+        identidade_dict = json.loads(identidade_str_json)
+        usuario_id_token = identidade_dict.get("id")
+        perfil_id = identidade_dict.get("perfil_id")
+
+        query = db.session.query(
+            Chamado.status, 
+            func.count(Chamado.id).label('quantidade')
+        )
+        
+        if str(perfil_id) != '1':
+            query = query.filter(Chamado.requerente_id == usuario_id_token)
+
+        contagens = query.group_by(Chamado.status).all()
         resultado_formatado = {status: quantidade for status, quantidade in contagens}
+        
         return jsonify(resultado_formatado)
 
     except Exception as e:

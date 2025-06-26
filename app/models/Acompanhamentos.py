@@ -1,6 +1,7 @@
 from app import db
 from sqlalchemy import func
 from time import strftime
+import datetime
 
 class Acompanhamento(db.Model):
     """
@@ -11,7 +12,7 @@ class Acompanhamento(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     comentario = db.Column(db.Text, nullable=False)
-    data_criacao = db.Column(db.DateTime, server_default=func.now())
+    data_criacao = db.Column(db.DateTime, default=lambda: datetime.datetime.now())
     chamado_id = db.Column(db.Integer, db.ForeignKey('chamados.id'), nullable=False)
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
     usuario = db.relationship('Usuario', back_populates='acompanhamentos')

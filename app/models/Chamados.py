@@ -1,6 +1,7 @@
 from app import db
 from sqlalchemy import Integer, ForeignKey, func
 from time import strftime
+import datetime
 
 
 
@@ -11,7 +12,7 @@ class Chamado(db.Model):
     titulo = db.Column(db.String(100), nullable=False)
     descricao = db.Column(db.Text, nullable=False)
     status = db.Column(db.String(40))
-    data_criacao = db.Column(db.DateTime, server_default=func.now())
+    data_criacao = db.Column(db.DateTime, default=lambda: datetime.datetime.now())
     
     requerente_id = db.Column(Integer, ForeignKey('usuarios.id'), nullable=False)
     responsavel_id = db.Column(Integer, ForeignKey('usuarios.id'), nullable=True)
@@ -35,7 +36,7 @@ class Chamado(db.Model):
     categoria = db.relationship('Categoria', back_populates='chamados')
     
     organizacao_id = db.Column(Integer, ForeignKey('organizacoes.id'), nullable=False)
-    organizacao = db.relationship('Organizacao', back_populates='chamados')
+    organizacao = db.relationship('Organizacao', back_populates='chamados_organizacao')
 
     acompanhamentos = db.relationship(
         'Acompanhamento', 

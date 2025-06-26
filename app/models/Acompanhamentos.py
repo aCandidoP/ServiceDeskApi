@@ -1,5 +1,6 @@
 from app import db
 from sqlalchemy import func
+from time import strftime
 
 class Acompanhamento(db.Model):
     """
@@ -21,7 +22,7 @@ class Acompanhamento(db.Model):
         return {
             'id': self.id,
             'comentario': self.comentario,
-            'data_criacao': self.data_criacao.isoformat() if self.data_criacao else None,
+            'data_criacao': self.data_criacao.strftime("%d/%m/%Y %H:%M") if self.data_criacao else None,
             'usuario_id': self.usuario_id if self.usuario_id else None,
             'usuario_nome': self.usuario.nome
         }

@@ -5,7 +5,8 @@ from app.config.dbconfig import DBConfig, db
 from dotenv import load_dotenv
 import os
 from flask_cors import CORS
-import ast 
+import ast
+from datetime import timedelta
 
 load_dotenv()
 
@@ -19,6 +20,7 @@ def create_app(config_class=DBConfig):
     app.config.from_object(config_class) 
     
     app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
+    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
     
     jwt_token_location_env = os.getenv("JWT_TOKEN_LOCATION")
     if jwt_token_location_env:
@@ -31,6 +33,7 @@ def create_app(config_class=DBConfig):
         app.config["JWT_TOKEN_LOCATION"] = ["headers"]
 
     app.debug = os.getenv("FLASK_DEBUG", "False").lower() in ("true", "1", "t")
+    
     
     db.init_app(app) 
     migrate.init_app(app, db)

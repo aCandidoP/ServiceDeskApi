@@ -1,6 +1,5 @@
 from app import db
-from sqlalchemy import Integer, ForeignKey
-import datetime
+from sqlalchemy import Integer, ForeignKey, func
 from time import strftime
 
 
@@ -10,17 +9,34 @@ class Chamado(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     titulo = db.Column(db.String(100), nullable=False)
-    tipo_id = db.Column(Integer, ForeignKey('tipo.id'), nullable=False)
-    tipo = db.relationship('Tipo', back_populates='chamado')
-    categoria_id = db.Column(Integer, ForeignKey('categorias.id'), nullable=False)
-    categoria = db.relationship('Categoria', back_populates='chamados')
     descricao = db.Column(db.Text, nullable=False)
     status = db.Column(db.String(40))
-    data_criacao = db.Column(db.DateTime, default=lambda: datetime.datetime.now())
-    usuario_id = db.Column(Integer, ForeignKey('usuarios.id'), nullable=False)
-    usuario = db.relationship('Usuario', back_populates='chamados')
-    organizacao_id = db.Column(Integer, ForeignKey('organizacoes.id'))
-    organizacao = db.relationship('Organizacao', back_populates='chamados_organizacao')
+    data_criacao = db.Column(db.DateTime, server_default=func.now())
+    
+    requerente_id = db.Column(Integer, ForeignKey('usuarios.id'), nullable=False)
+    responsavel_id = db.Column(Integer, ForeignKey('usuarios.id'), nullable=True)
+
+    requerente = db.relationship(
+        'Usuario', 
+        back_populates='chamados_criados',
+        foreign_keys=[requerente_id] 
+    )
+    
+    responsavel = db.relationship(
+        'Usuario',
+        back_populates='chamados_atribuidos',
+        foreign_keys=[responsavel_id] 
+    )
+
+    tipo_id = db.Column(Integer, ForeignKey('tipo.id'), nullable=False)
+    tipo = db.relationship('Tipo', back_populates='chamado')
+
+    categoria_id = db.Column(Integer, ForeignKey('categorias.id'), nullable=False)
+    categoria = db.relationship('Categoria', back_populates='chamados')
+    
+    organizacao_id = db.Column(Integer, ForeignKey('organizacoes.id'), nullable=False)
+    organizacao = db.relationship('Organizacao', back_populates='chamados')
+
     acompanhamentos = db.relationship(
         'Acompanhamento', 
         back_populates='chamado', 
@@ -28,32 +44,35 @@ class Chamado(db.Model):
         order_by='Acompanhamento.data_criacao.asc()'
     )
     
-    
-    
-    
     def to_dict(self):
+        """
+        Converte o objeto para um dicionário, usando as novas relações
+        'criador' e 'responsavel' para garantir os dados corretos.
+        """
         return {
             'id': self.id,
             'titulo': self.titulo,
-            'tipo_id': self.categoria.tipo_id,
-            'desc_tipo': self.categoria.tipo.desc_tipo,
-            'categoria_id': self.categoria_id,
-            'categoria_nome': self.categoria.nome,
             'descricao': self.descricao,
             'status': self.status,
             'data_criacao': self.data_criacao.strftime("%d/%m/%Y %H:%M") if self.data_criacao else None,
-
-            'usuario_id': self.usuario.id,
-            'usuario_nome': self.usuario.nome if self.usuario else None,
-            'organizacao_id': self.organizacao_id if self.organizacao_id else None,
-            'organizacao_nome': self.organizacao.nome if self.organizacao.nome else None,
+            'tipo': {'id': self.tipo.id, 'desc_tipo': self.tipo.desc_tipo} if self.tipo else None,
+            'categoria': {'id': self.categoria.id, 'nome': self.categoria.nome} if self.categoria else None,
+            'organizacao': {'id': self.organizacao.id, 'nome': self.organizacao.nome} if self.organizacao else None,
+            
+            'requerente': {
+                'id': self.requerente.id,
+                'nome': self.requerente.nome
+            } if self.requerente else None,
+            
+            'responsavel': {
+                'id': self.responsavel.id,
+                'nome': self.responsavel.nome
+            } if self.responsavel else None,
             
             'acompanhamentos': [
-                acompanhamento.to_dict() for acompanhamento in self.acompanhamentos
+                acomp.to_dict() for acomp in self.acompanhamentos.all()
             ]
         }
-
-        
 
     def __repr__(self):
         return f'<Chamado {self.titulo}>'

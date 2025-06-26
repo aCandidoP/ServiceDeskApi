@@ -24,7 +24,7 @@ def listar_usuarios():
 # Rota para listar usuários por id
 @usuario_bp.route("/<int:user_id>", methods=["GET"])
 @jwt_required()
-@somente_admin
+# @somente_admin
 def listar_usuario(user_id):
     usuario = Usuario.query.get_or_404(user_id)
     usuario_json = {

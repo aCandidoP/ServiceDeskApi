@@ -8,6 +8,8 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.decorators import somente_admin
 import json
 from sqlalchemy import desc, func
+import datetime
+
 
 # Rota para listar todos os chamados (não paginada)
 @chamado_bp.route('', methods=["GET"])
@@ -221,3 +223,44 @@ def get_contagem_por_status():
     except Exception as e:
         print(f"Erro ao gerar estatísticas de chamados: {e}")
         return jsonify({"erro": "Não foi possível processar as estatísticas"}), 500
+
+@chamado_bp.route('/<int:chamado_id>/status', methods=['PUT'])
+@jwt_required()
+def atualizar_status_chamado(chamado_id):
+    """
+    Atualiza o status de um chamado.
+    Espera um JSON com o novo status, ex: {"status": "EM_ATENDIMENTO"}
+    """
+    dados = request.get_json()
+    novo_status = dados.get('status')
+    if not novo_status:
+        return jsonify({"erro": "O campo 'status' é obrigatório."}), 400
+    
+    chamado_a_atualizar = Chamado.query.get_or_404(
+        chamado_id, 
+        description=f"Chamado com ID {chamado_id} não encontrado."
+    )
+
+    try:
+        identidade_str_json = get_jwt_identity()
+        identidade_dict = json.loads(identidade_str_json)
+        usuario_id_logado = identidade_dict.get("id")
+        perfil_id_logado = identidade_dict.get("perfil_id")
+        
+        usuario_logado = Usuario.query.get_or_404(usuario_id_logado)
+    except (TypeError, json.JSONDecodeError):
+        return jsonify({"erro": "Formato da identidade no token é inválido."}), 401
+        
+    if str(perfil_id_logado) != '1' and chamado_a_atualizar.responsavel_id != usuario_id_logado:
+        return jsonify({"erro": "Apenas o responsável ou um administrador podem alterar o status deste chamado."}), 403
+    
+    chamado_a_atualizar.status = novo_status.upper()
+    chamado_a_atualizar.ultima_atualizacao = datetime.datetime.now()
+
+    db.session.add(chamado_a_atualizar)
+    db.session.commit()
+
+    return jsonify({
+        "mensagem": "Status do chamado atualizado com sucesso!",
+        "chamado": chamado_a_atualizar.to_dict()
+    })

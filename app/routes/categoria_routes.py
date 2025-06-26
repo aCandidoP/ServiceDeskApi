@@ -8,7 +8,6 @@ from app.decorators import somente_admin
 
 @categoria_bp.route('', methods=["GET"])
 @jwt_required()
-@somente_admin
 def listar_categorias():
     categorias = Categoria.query.all()
     categorias_dict = [categoria.to_dict() for categoria in categorias]

@@ -13,6 +13,8 @@ class Chamado(db.Model):
     descricao = db.Column(db.Text, nullable=False)
     status = db.Column(db.String(40))
     data_criacao = db.Column(db.DateTime, default=lambda: datetime.datetime.now())
+    ultima_atualizacao = db.Column(db.DateTime, default=lambda: datetime.datetime.now())
+    
     
     requerente_id = db.Column(Integer, ForeignKey('usuarios.id'), nullable=False)
     responsavel_id = db.Column(Integer, ForeignKey('usuarios.id'), nullable=True)
@@ -56,6 +58,7 @@ class Chamado(db.Model):
             'descricao': self.descricao,
             'status': self.status,
             'data_criacao': self.data_criacao.strftime("%d/%m/%Y %H:%M") if self.data_criacao else None,
+            'ultima_atualizacao': self.ultima_atualizacao.strftime("%d/%m/%Y %H:%M") if self.ultima_atualizacao else None,
             'tipo': {'id': self.tipo.id, 'desc_tipo': self.tipo.desc_tipo} if self.tipo else None,
             'categoria': {'id': self.categoria.id, 'nome': self.categoria.nome} if self.categoria else None,
             'organizacao': {'id': self.organizacao.id, 'nome': self.organizacao.nome} if self.organizacao else None,

@@ -14,6 +14,7 @@ def email_valido(email):
 
 # Rota para listar usuários
 @usuario_bp.route("/", methods=["GET"])
+@jwt_required()
 def listar_usuarios():
     usuarios = Usuario.query.all()
     usuarios_list = [{"id": u.id, "nome": u.nome, "email": u.email, "perfil_id": u.perfil_id,

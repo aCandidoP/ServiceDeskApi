@@ -255,6 +255,7 @@ def atualizar_status_chamado(chamado_id):
         return jsonify({"erro": "Apenas o responsável ou um administrador podem alterar o status deste chamado."}), 403
     
     chamado_a_atualizar.status = novo_status.upper()
+    chamado_a_atualizar.responsavel_id = usuario_id_logado
     chamado_a_atualizar.ultima_atualizacao = datetime.datetime.now()
 
     db.session.add(chamado_a_atualizar)

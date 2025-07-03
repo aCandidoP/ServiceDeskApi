@@ -7,6 +7,7 @@ import os
 from flask_cors import CORS
 import ast
 from datetime import timedelta
+from .commands import seed
 
 load_dotenv()
 
@@ -38,6 +39,8 @@ def create_app(config_class=DBConfig):
     db.init_app(app) 
     migrate.init_app(app, db)
     jwt.init_app(app)
+    app.cli.add_command(seed)
+
     
     from app.routes.usuario_routes import usuario_bp
     from app.routes.chamado_routes import chamado_bp

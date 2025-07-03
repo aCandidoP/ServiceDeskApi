@@ -1,7 +1,7 @@
 # app/routes/chamado_routes.py
 
 from flask import jsonify, request
-from app.models import Chamado, Usuario # Importar Usuario para a rota de criação
+from app.models import Chamado, Usuario, Organizacao # Importar Usuario para a rota de criação
 from app.config.dbconfig import db
 from app.routes import chamado_bp
 from flask_jwt_extended import jwt_required, get_jwt_identity
@@ -25,8 +25,14 @@ def listar_chamados():
 
     if str(perfil_id) == '1': # Verifica se é Admin
         chamados_query = Chamado.query.order_by(desc(Chamado.id))
+    elif str(perfil_id) == '3': # 2. SENÃO, SE for Gerente de Organização...
+        usuario_gerente = Usuario.query.get_or_404(usuario_id_token)
+        organizacao_do_gerente_id = usuario_gerente.organizacao_id
+        chamados_query = Chamado.query.filter_by(
+            organizacao_id=organizacao_do_gerente_id
+        ).order_by(desc(Chamado.id))
     else:
-        # ALTERAÇÃO: Filtra pelo novo campo 'requerente_id'
+        # Filtra pelo campo 'requerente_id'
         chamados_query = Chamado.query.filter_by(requerente_id=usuario_id_token).order_by(desc(Chamado.id))
     
     chamados = chamados_query.all()
@@ -62,6 +68,12 @@ def listar_chamado_byStatus(status):
 
     if str(perfil_id) == '1': # Se for Admin, busca em todos os chamados
         chamados = Chamado.query.filter_by(status=status_formatado).order_by(Chamado.id.desc()).all()
+    elif str(perfil_id) == '3': # 2. SENÃO, SE for Gerente de Organização...
+        usuario_gerente = Usuario.query.get_or_404(usuario_id_token)
+        organizacao_do_gerente_id = usuario_gerente.organizacao_id
+        chamados = Chamado.query.filter_by(
+            organizacao_id=organizacao_do_gerente_id
+        ).order_by(desc(Chamado.id))
     else: # Se não, busca apenas nos chamados do próprio usuário
         chamados = Chamado.query.filter_by(status=status_formatado, requerente_id=usuario_id_token).order_by(Chamado.id.desc()).all()
     
@@ -130,6 +142,12 @@ def get_chamados_paginados():
     query_base = None
     if str(perfil_id) == '1':
         query_base = Chamado.query.order_by(desc(Chamado.id))
+    elif str(perfil_id) == '3': # 2. SENÃO, SE for Gerente de Organização...
+        usuario_gerente = Usuario.query.get_or_404(usuario_id_token)
+        organizacao_do_gerente_id = usuario_gerente.organizacao_id
+        query_base = Chamado.query.filter_by(
+            organizacao_id=organizacao_do_gerente_id
+        ).order_by(desc(Chamado.id))
     else:
         query_base = Chamado.query.filter_by(requerente_id=usuario_id_token).order_by(desc(Chamado.id))
 
@@ -171,6 +189,13 @@ def get_chamados_paginados_byStatus(status):
     query_base = None
     if str(perfil_id) == '1':
         query_base = Chamado.query.filter_by(status=status_formatado).order_by(desc(Chamado.id))
+    elif str(perfil_id) == '3': # 2. SENÃO, SE for Gerente de Organização...
+        usuario_gerente = Usuario.query.get_or_404(usuario_id_token)
+        organizacao_do_gerente_id = usuario_gerente.organizacao_id
+        query_base = Chamado.query.filter_by(
+            organizacao_id=organizacao_do_gerente_id,
+            status=status_formatado
+        ).order_by(desc(Chamado.id))
     else:
         query_base = Chamado.query.filter_by(requerente_id=usuario_id_token, status=status_formatado).order_by(desc(Chamado.id))
 
@@ -247,7 +272,6 @@ def atualizar_status_chamado(chamado_id):
         usuario_id_logado = identidade_dict.get("id")
         perfil_id_logado = identidade_dict.get("perfil_id")
         
-        usuario_logado = Usuario.query.get_or_404(usuario_id_logado)
     except (TypeError, json.JSONDecodeError):
         return jsonify({"erro": "Formato da identidade no token é inválido."}), 401
         

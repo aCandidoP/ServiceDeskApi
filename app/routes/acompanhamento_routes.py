@@ -31,7 +31,6 @@ def incluir_acompanhamento():
         return jsonify({"erro": "Formato da identidade no token é inválido."}), 401
     
     # --- LÓGICA DE ATUALIZAÇÃO ---
-
     chamado_a_atualizar = Chamado.query.get_or_404(
         chamado_id, 
         description=f"Não é possível adicionar acompanhamento a um chamado (ID: {chamado_id}) que não existe."

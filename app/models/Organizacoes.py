@@ -5,8 +5,8 @@ class Organizacao(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(100), nullable=False)
-    cidade = db.Column(db.String(25), nullable=False)
-    estado = db.Column(db.String(2), nullable=False)
+    cidade = db.Column(db.String(50), nullable=False)
+    estado = db.Column(db.String(50), nullable=False)
     segmento = db.Column(db.String(100), nullable=False)
     chamados_organizacao = db.relationship('Chamado', back_populates='organizacao')
     usuarios = db.relationship('Usuario', back_populates='organizacao')

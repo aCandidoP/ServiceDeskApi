@@ -24,21 +24,26 @@ class Categoria(db.Model):
     
     chamados = db.relationship('Chamado', back_populates='categoria')
     
-    def to_dict(self):
+    def to_dict(self, include_children=True):
         """
-        Converte o objeto para um dicionário, incluindo a estrutura
-        de sub-categorias para o frontend.
+        Converte o objeto para um dicionário.
+        O parâmetro 'include_children' controla se as sub-categorias devem ser incluídas.
         """
         permite_abertura = self.children.count() == 0
 
-        return {
+        data = {
             'id': self.id,
             'nome': self.nome,
             'parent_id': self.parent_id,
-            'permite_abertura': permite_abertura,
-            # Chama o to_dict() para cada filho, criando a árvore aninhada.
-            'sub_categorias': [child.to_dict() for child in self.children]
+            'permite_abertura': permite_abertura
         }
+        
+        if include_children:
+            data['sub_categorias'] = [child.to_dict(include_children=False) for child in self.children]
+        
+        return data
     
     def __repr__(self):
         return f'<Categoria: {self.nome}>'
+    
+    

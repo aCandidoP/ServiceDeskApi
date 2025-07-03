@@ -23,3 +23,18 @@ def get_arvore_de_categorias():
     arvore_json = [categoria.to_dict() for categoria in categorias_mae]
     
     return jsonify({"categorias": arvore_json})
+
+@categoria_bp.route('/arvore/<int:tipo_id>', methods=['GET'])
+@jwt_required()
+def get_arvore_por_tipo(tipo_id):
+    """
+    Retorna a árvore de categorias para um tipo específico (ex: apenas Requisições).
+    """
+    categorias_mae = Categoria.query.filter_by(
+        parent_id=None, 
+        tipo_id=tipo_id
+    ).all()
+    
+    arvore_json = [categoria.to_dict() for categoria in categorias_mae]
+    
+    return jsonify({"categorias": arvore_json})

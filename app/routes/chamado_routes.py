@@ -27,10 +27,7 @@ def listar_chamados():
         chamados_query = Chamado.query.order_by(desc(Chamado.id))
     elif str(perfil_id) == '3': # 2. SENÃO, SE for Gerente de Organização...
         usuario_gerente = Usuario.query.get_or_404(usuario_id_token)
-        organizacao_do_gerente_id = usuario_gerente.organizacao_id
-        chamados_query = Chamado.query.filter_by(
-            organizacao_id=organizacao_do_gerente_id
-        ).order_by(desc(Chamado.id))
+        chamados_query = Chamado.query.filter_by(organizacao_id=usuario_gerente.organizacao_id).order_by(desc(Chamado.id))
     else:
         # Filtra pelo campo 'requerente_id'
         chamados_query = Chamado.query.filter_by(requerente_id=usuario_id_token).order_by(desc(Chamado.id))
@@ -69,8 +66,8 @@ def listar_chamado_byStatus(status):
     if str(perfil_id) == '1': # Se for Admin, busca em todos os chamados
         chamados = Chamado.query.filter_by(status=status_formatado).order_by(Chamado.id.desc()).all()
     elif str(perfil_id) == '3': # 2. SENÃO, SE for Gerente de Organização...
-        usuario_gerente = Usuario.query.get_or_404(usuario_id_token)
-        organizacao_do_gerente_id = usuario_gerente.organizacao_id
+        usuario_gerente = Usuario.query.filter_by(usuario_id_token)
+        organizacao_do_gerente_id = usuario_gerente.to_dict()['organizacao_id']
         chamados = Chamado.query.filter_by(
             organizacao_id=organizacao_do_gerente_id
         ).order_by(desc(Chamado.id))
@@ -144,10 +141,7 @@ def get_chamados_paginados():
         query_base = Chamado.query.order_by(desc(Chamado.id))
     elif str(perfil_id) == '3': # 2. SENÃO, SE for Gerente de Organização...
         usuario_gerente = Usuario.query.get_or_404(usuario_id_token)
-        organizacao_do_gerente_id = usuario_gerente.organizacao_id
-        query_base = Chamado.query.filter_by(
-            organizacao_id=organizacao_do_gerente_id
-        ).order_by(desc(Chamado.id))
+        query_base = Chamado.query.filter_by(organizacao_id=usuario_gerente.organizacao_id).order_by(desc(Chamado.id))
     else:
         query_base = Chamado.query.filter_by(requerente_id=usuario_id_token).order_by(desc(Chamado.id))
 
@@ -189,13 +183,9 @@ def get_chamados_paginados_byStatus(status):
     query_base = None
     if str(perfil_id) == '1':
         query_base = Chamado.query.filter_by(status=status_formatado).order_by(desc(Chamado.id))
-    elif str(perfil_id) == '3': # 2. SENÃO, SE for Gerente de Organização...
-        usuario_gerente = Usuario.query.get_or_404(usuario_id_token, status=status_formatado)
-        organizacao_do_gerente_id = usuario_gerente.organizacao_id
-        query_base = Chamado.query.filter_by(
-            organizacao_id=organizacao_do_gerente_id,
-            status=status_formatado
-        ).order_by(desc(Chamado.id))
+    elif str(perfil_id) == '3':
+        usuario_gerente = Usuario.query.get_or_404(usuario_id_token)
+        query_base = Chamado.query.filter_by(organizacao_id=usuario_gerente.organizacao_id).order_by(desc(Chamado.id))
     else:
         query_base = Chamado.query.filter_by(requerente_id=usuario_id_token, status=status_formatado).order_by(desc(Chamado.id))
 
@@ -221,11 +211,6 @@ def get_chamados_paginados_byStatus(status):
 @chamado_bp.route('/contagem_por_status', methods=['GET'])
 @jwt_required()
 def get_contagem_por_status():
-    """
-    Retorna a contagem de chamados por status.
-    - Admins veem a contagem total.
-    - Usuários comuns veem a contagem apenas de seus próprios chamados.
-    """
     try:
         identidade_str_json = get_jwt_identity()
         identidade_dict = json.loads(identidade_str_json)
@@ -237,7 +222,11 @@ def get_contagem_por_status():
             func.count(Chamado.id).label('quantidade')
         )
         
-        if str(perfil_id) != '1':
+        if str(perfil_id) == '3':
+            # CORREÇÃO: Lógica para gerente aplicada aqui também.
+            usuario_gerente = Usuario.query.get_or_404(usuario_id_token)
+            query = query.filter(Chamado.organizacao_id == usuario_gerente.organizacao_id)
+        elif str(perfil_id) != '1': # Se não for admin nem gerente
             query = query.filter(Chamado.requerente_id == usuario_id_token)
 
         contagens = query.group_by(Chamado.status).all()

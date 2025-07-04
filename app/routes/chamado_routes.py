@@ -190,7 +190,7 @@ def get_chamados_paginados_byStatus(status):
     if str(perfil_id) == '1':
         query_base = Chamado.query.filter_by(status=status_formatado).order_by(desc(Chamado.id))
     elif str(perfil_id) == '3': # 2. SENÃO, SE for Gerente de Organização...
-        usuario_gerente = Usuario.query.get_or_404(usuario_id_token)
+        usuario_gerente = Usuario.query.get_or_404(usuario_id_token, status=status_formatado)
         organizacao_do_gerente_id = usuario_gerente.organizacao_id
         query_base = Chamado.query.filter_by(
             organizacao_id=organizacao_do_gerente_id,

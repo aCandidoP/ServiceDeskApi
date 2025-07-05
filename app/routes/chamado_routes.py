@@ -223,7 +223,6 @@ def get_contagem_por_status():
         )
         
         if str(perfil_id) == '3':
-            # CORREÇÃO: Lógica para gerente aplicada aqui também.
             usuario_gerente = Usuario.query.get_or_404(usuario_id_token)
             query = query.filter(Chamado.organizacao_id == usuario_gerente.organizacao_id)
         elif str(perfil_id) != '1': # Se não for admin nem gerente

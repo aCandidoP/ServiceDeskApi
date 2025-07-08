@@ -185,7 +185,7 @@ def get_chamados_paginados_byStatus(status):
         query_base = Chamado.query.filter_by(status=status_formatado).order_by(desc(Chamado.id))
     elif str(perfil_id) == '3':
         usuario_gerente = Usuario.query.get_or_404(usuario_id_token)
-        query_base = Chamado.query.filter_by(organizacao_id=usuario_gerente.organizacao_id).order_by(desc(Chamado.id))
+        query_base = Chamado.query.filter_by(organizacao_id=usuario_gerente.organizacao_id, status=status_formatado).order_by(desc(Chamado.id))
     else:
         query_base = Chamado.query.filter_by(requerente_id=usuario_id_token, status=status_formatado).order_by(desc(Chamado.id))
 

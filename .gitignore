@@ -4,4 +4,4 @@ migrations/
 __pycache__
 config/
 .env
-commands
+commands/

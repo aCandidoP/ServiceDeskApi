@@ -4,7 +4,7 @@ from app.models import Usuario
 from flask_jwt_extended import create_access_token
 from app.routes import auth_bp
 
-@auth_bp.route('', methods=['POST'])
+@auth_bp.route('/', methods=['POST'])
 def auth():
     dados = request.get_json()
 

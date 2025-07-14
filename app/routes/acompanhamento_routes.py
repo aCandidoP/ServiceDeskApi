@@ -7,7 +7,7 @@ from app.models import Acompanhamento, Chamado
 from app import db
 from . import acompanhamento_bp
 
-@acompanhamento_bp.route('', methods=["POST"])
+@acompanhamento_bp.route('/', methods=["POST"])
 @jwt_required() 
 def incluir_acompanhamento():
     """

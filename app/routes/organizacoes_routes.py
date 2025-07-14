@@ -23,7 +23,7 @@ def listar_organizacoes():
     
     return(jsonify(organizacoes_json))
     
-@organizacao_bp.route('', methods=["POST"])
+@organizacao_bp.route('/', methods=["POST"])
 @jwt_required()
 @somente_admin
 def cadastrar_organizacao():

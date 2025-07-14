@@ -79,7 +79,7 @@ def listar_chamado_byStatus(status):
     return jsonify({"chamados": chamados_json})
 
 # Rota para criar um novo chamado
-@chamado_bp.route('', methods=["POST"])
+@chamado_bp.route('/', methods=["POST"])
 @jwt_required()
 def criar_chamado():
     dados = request.get_json()
